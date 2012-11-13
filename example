@@ -7,3 +7,9 @@ title 1
     " text under 1
     $ math under 1
 new title
+    " text
+    " text
+    * this
+    * is
+    * a bulleted
+    * list
