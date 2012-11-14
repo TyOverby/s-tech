@@ -4,14 +4,6 @@ import re
 from s_tech import *
 import sys
 
-def prepare_html(tree):
-    root = tree.root
-    traverse(root)
-
-    return tree
-
-
-# Counts the amount of title elements up the chain from this.
 def countParentTitles(node, count):
     if node.parent:
         if node.parent.node_type == "title":
@@ -21,52 +13,40 @@ def countParentTitles(node, count):
     else:
         return count
 
-alreadyAdded = set()
-def escape(string):
-    test = string.replace(" ","_").replace("\t","-")
-    test = re.sub(r'[^\w]', '_', test)
-    if test not in alreadyAdded:
-        alreadyAdded.add(test)
-        return test
-    else:
-        return escape(test+"_")
-
 def transform(tree):
     errors = set()
     for node in tree.flatten(tree.root):
         node_type = node.node_type.strip()
 
         if node_type == "ROOT":
-            yield "<html><body>"
+            header = file("./latex_files/latex_header.latex")
+            yield header.read()
 
         elif node_type == "title":
             dec = str(countParentTitles(node,0)+1)
-            yield "<h"+dec+" id='"+escape(node.parsed_text)+"'>"+node.parsed_text+"</h"+dec+">"
-        elif node_type == "title_start":
-            yield "<div style='padding-left:40px;'>"
-        elif node_type == "title_end":
-            yield "</div>"
+            if dec == 0:
+                yield "\section{}["+node.node.parsed_text+"]"
 
         elif node_type == "paragraph_start":
-            yield"<p>"
+            yield"\n"
         elif node_type == "paragraph":
             yield node.parsed_text+" "
         elif node_type == "paragraph_end":
-            yield "</p>"
+            yield "\n"
 
         elif node_type == "bulleted_list_start":
-            yield "<ul>"
+            yield "\\begin{itemize}"
         elif node_type is "bulleted_list":
-            yield "<li>"+node.parsed_text+"</li>"
+            yield "\\item "+node.parsed_text
         elif node_type == "bulleted_list_end":
-            yield "</ul>"
+            yield "\\end{itemize}"
 
         elif node_type == "numbered_list_start":
-            yield "<ol>"
+            yield "\\begin{enumerate}\n"
         elif node_type == "numbered_list":
-            yield "<li>"+node.parsed_text+"</li>"
+            yield "\\item "+node.parsed_text+"\n"
         elif node_type == "numbered_list_end":
-            yield "</ol>"
+            yield "\\end{enumerate}"
         else:
             errors.add(node.node_type)
 

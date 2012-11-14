@@ -1,0 +1,7 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath}
+\title{\LaTeX}
+\date{}
+\begin{document}
+  \maketitle
+  this is a test
